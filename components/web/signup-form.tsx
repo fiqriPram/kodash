@@ -41,20 +41,55 @@ export function SignupForm() {
 
   const onSubmit = (data: SignupInput) => {
     startTransition(async () => {
-      await authClient.signUp.email({
-        name: data.fullName,
+      console.log("📝 Starting signup with:", {
         email: data.email,
-        password: data.password,
-        fetchOptions: {
-          onSuccess: () => {
-            toast.success("Account created successfully");
-            router.push("/dashboard");
-          },
-          onError: ({ error }) => {
-            toast.error(error.message);
-          },
-        },
+        name: data.fullName,
       });
+
+      try {
+        const result = await authClient.signUp.email({
+          name: data.fullName,
+          email: data.email,
+          password: data.password,
+          fetchOptions: {
+            onSuccess: async () => {
+              console.log("✅ Signup successful, waiting for session...");
+              toast.success("Account created successfully");
+
+              // Small delay to ensure session is set
+              await new Promise((resolve) => setTimeout(resolve, 500));
+
+              console.log("🚀 Redirecting to dashboard...");
+              router.push("/dashboard");
+            },
+            onError: (response) => {
+              console.error("❌ Signup error response:", response);
+              console.error("❌ Error object:", response.error);
+              console.error(
+                "❌ Full response:",
+                JSON.stringify(response, null, 2)
+              );
+
+              const errorMessage =
+                response.error?.message ||
+                response.error?.toString() ||
+                "An error occurred during signup";
+
+              toast.error(errorMessage);
+            },
+          },
+        });
+        console.log("📤 Signup result:", result);
+      } catch (err) {
+        console.error("💥 Signup exception:", err);
+        console.error("💥 Exception details:", JSON.stringify(err, null, 2));
+
+        if (err instanceof Error) {
+          toast.error(err.message);
+        } else {
+          toast.error("An unexpected error occurred");
+        }
+      }
     });
   };
 

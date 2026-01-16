@@ -44,19 +44,51 @@ export function LoginForm() {
 
   const onSubmit = (data: LoginValues) => {
     startTransition(async () => {
-      await authClient.signIn.email({
-        email: data.email,
-        password: data.password,
-        fetchOptions: {
-          onSuccess: () => {
-            toast.success("Logged in successfully");
-            router.push("/dashboard");
+      console.log("🔐 Starting login with:", { email: data.email });
+
+      try {
+        const result = await authClient.signIn.email({
+          email: data.email,
+          password: data.password,
+          fetchOptions: {
+            onSuccess: async () => {
+              console.log("✅ Login successful, waiting for session...");
+              toast.success("Logged in successfully");
+
+              // Small delay to ensure session is set
+              await new Promise((resolve) => setTimeout(resolve, 500));
+
+              console.log("🚀 Redirecting to dashboard...");
+              router.push("/dashboard");
+            },
+            onError: (response) => {
+              console.error("❌ Login error response:", response);
+              console.error("❌ Error object:", response.error);
+              console.error(
+                "❌ Full response:",
+                JSON.stringify(response, null, 2)
+              );
+
+              const errorMessage =
+                response.error?.message ||
+                response.error?.toString() ||
+                "An error occurred during login";
+
+              toast.error(errorMessage);
+            },
           },
-          onError: ({ error }) => {
-            toast.error(error.message);
-          },
-        },
-      });
+        });
+        console.log("📤 Login result:", result);
+      } catch (err) {
+        console.error("💥 Login exception:", err);
+        console.error("💥 Exception details:", JSON.stringify(err, null, 2));
+
+        if (err instanceof Error) {
+          toast.error(err.message);
+        } else {
+          toast.error("An unexpected error occurred during login");
+        }
+      }
     });
   };
 
