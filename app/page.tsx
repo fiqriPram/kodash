@@ -55,19 +55,19 @@ const features = [
     title: "Import URLs",
     description: "Scrape web content with real-time progress",
     icon: Globe,
-    href: "/dashboard/import",
+    href: "/features/import",
   },
   {
     title: "AI Summaries",
     description: "Generate intelligent summaries",
     icon: Sparkles,
-    href: "/dashboard/items",
+    href: "/features/items",
   },
   {
     title: "Discover Content",
     description: "Search and bulk import articles",
     icon: BookOpen,
-    href: "/dashboard/discover",
+    href: "/features/discover",
   },
 ];
 
