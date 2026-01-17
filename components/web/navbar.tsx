@@ -6,6 +6,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { ThemeToggle } from "./theme-toggle";
+import Image from "next/image";
 
 export function Navbar() {
   const { data: session, isPending } = authClient.useSession();
@@ -28,10 +29,12 @@ export function Navbar() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
         {/* Logo */}
         <div className="flex items-center gap-2">
-          <img
-            src="https://tanstack.com/images/logos/logo-color-banner-600.png"
+          <Image
+            src="/kodash.svg"
             alt="Logo"
-            className="size-8"
+            className="size-8 dark:invert"
+            width={32}
+            height={32}
           />
           <h1 className="text-lg font-semibold">Next App</h1>
         </div>
