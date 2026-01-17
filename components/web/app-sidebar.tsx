@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookmarkIcon, Compass, Import } from "lucide-react";
+import {
+  BookmarkIcon,
+  CalendarIcon,
+  SparklesIcon,
+  UsersIcon,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -27,19 +32,19 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-    title: "Items",
-    icon: BookmarkIcon,
-    href: "/dashboard/items",
+    title: "Scheduling",
+    icon: CalendarIcon,
+    href: "/dashboard/scheduling",
   },
   {
-    title: "Import",
-    icon: Import,
-    href: "/dashboard/import",
+    title: "AI Content Assistant",
+    icon: SparklesIcon,
+    href: "/dashboard/ai-assistant",
   },
   {
-    title: "Discover",
-    icon: Compass,
-    href: "/dashboard/discover",
+    title: "Audience Analytics",
+    icon: UsersIcon,
+    href: "/dashboard/audience",
   },
 ];
 

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import {
   ArrowRight,
+  BarChart,
   BookOpen,
   Braces,
+  Calendar,
   Check,
   Database,
   Globe,
@@ -22,52 +24,52 @@ import {
 import { Navbar } from "@/components/web/navbar";
 
 export const metadata = {
-  title: "Learn Full-Stack React | Next.js",
+  title: "Social Media Dashboard for Influencers | Grow & Automate",
   description:
-    "Build modern full-stack React apps with Next.js, Prisma, authentication, and AI features.",
+    "Plan, schedule, and optimize your social media posts effortlessly. AI-powered tools, analytics, and multi-platform management to boost your engagement and save time.",
 };
 
-const techStack = [
+const benefits = [
   {
-    name: "Next.js",
-    description: "React framework with App Router and Server Components",
-    icon: Layers,
+    title: "Save Time",
+    description: "Automate posting and focus more on creating content.",
   },
   {
-    name: "Prisma + PostgreSQL",
-    description: "Type-safe database access",
-    icon: Database,
+    title: "Boost Engagement",
+    description:
+      "AI suggestions and actionable analytics help grow your audience.",
   },
   {
-    name: "Authentication",
-    description: "Secure auth with better-auth",
-    icon: Lock,
+    title: "Multi-Platform Control",
+    description: "Manage all your accounts from one intuitive dashboard.",
   },
   {
-    name: "AI Integration",
-    description: "Streaming AI responses",
-    icon: Sparkles,
+    title: "Optimize Content",
+    description: "Plan and preview posts to maximize performance.",
   },
 ];
 
 const features = [
   {
-    title: "Import URLs",
-    description: "Scrape web content with real-time progress",
-    icon: Globe,
-    href: "/features/import",
+    title: "Smart Scheduling",
+    description:
+      "Plan and schedule posts across all your social media accounts with ease.",
+    icon: Calendar,
+    href: "/features/scheduling",
   },
   {
-    title: "AI Summaries",
-    description: "Generate intelligent summaries",
+    title: "AI Content Assistant",
+    description:
+      "Generate captions, hashtags, and content ideas intelligently using AI.",
     icon: Sparkles,
-    href: "/features/items",
+    href: "/features/ai-assistant",
   },
   {
-    title: "Discover Content",
-    description: "Search and bulk import articles",
-    icon: BookOpen,
-    href: "/features/discover",
+    title: "Analytics & Insights",
+    description:
+      "Track engagement, monitor performance, and get actionable insights for growth.",
+    icon: BarChart,
+    href: "/features/analytics",
   },
 ];
 
@@ -80,12 +82,15 @@ export default function LandingPage() {
       <section className="relative px-4 py-24 text-center">
         <div className="mx-auto max-w-3xl space-y-6">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-6xl">
-            Learn Full-Stack with <span className="text-primary">Next.js</span>
+            {/* Learn Full-Stack with <span className="text-primary">Next.js</span> */}
+            Manage All Your Social Media in One Place
           </h1>
 
           <p className="text-xl text-muted-foreground">
-            Build a real-world application with authentication, database,
-            dashboards, and AI features.
+            {/* Build a real-world application with authentication, database,
+            dashboards, and AI features. */}
+            Schedule, track, and optimize your content effortlessly across all
+            your social media accounts.
           </p>
 
           <div className="flex justify-center gap-4">
@@ -116,7 +121,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features */}
-      <section className="px-4 py-20">
+      <section className="px-4 py-30">
         <div className="mx-auto max-w-6xl grid gap-6 md:grid-cols-3">
           {features.map((feature) => (
             <Card key={feature.title}>
@@ -138,20 +143,23 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Tech Stack */}
+      {/* Benefits Section */}
       <section className="border-t px-4 py-20">
-        <div className="mx-auto max-w-6xl grid gap-4 md:grid-cols-3">
-          {techStack.map((tech) => (
-            <div key={tech.name} className="rounded-lg border p-4 flex gap-4">
-              <tech.icon className="h-6 w-6 text-primary" />
-              <div>
-                <h3 className="font-semibold">{tech.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {tech.description}
+        <div className="mx-auto max-w-4xl space-y-12 text-center">
+          <h2 className="text-3xl font-bold">Why You&apos;ll Love It</h2>
+          <div className="grid gap-8 md:grid-cols-2">
+            {benefits.map((benefit) => (
+              <div
+                key={benefit.title}
+                className="rounded-lg border p-6 hover:shadow-md transition"
+              >
+                <h3 className="text-xl font-semibold">{benefit.title}</h3>
+                <p className="text-muted-foreground mt-2">
+                  {benefit.description}
                 </p>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
