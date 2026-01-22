@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,27 +9,28 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  Calendar,
   BarChart3,
-  Zap,
+  TrendingUp,
   Users,
-  Twitter,
-  Instagram,
-  Github,
+  Video,
+  Zap,
+  Eye,
 } from "lucide-react";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
+      
       {/* Hero Section */}
-      <section className="bg-linear-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-20 px-4">
+      <section className="relative overflow-hidden bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-linear-to-r from-white to-gray-200">
-            Build the Future with CodeCraft
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            TikTok Analytics Made Simple
           </h1>
           <p className="text-xl md:text-2xl mb-8 opacity-90 max-w-2xl mx-auto">
-            The ultimate platform for developers to create, collaborate, and
-            deploy innovative applications with ease.
+            Track your TikTok performance, analyze trends, and grow your audience
+            with powerful insights and real-time analytics.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button
@@ -36,15 +38,15 @@ export default function Home() {
               size="lg"
               className="bg-white text-purple-600 hover:bg-gray-100"
             >
-              <Link href="/signup">Get Started</Link>
+              <Link href="/login">Get Started Free</Link>
             </Button>
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="border-white text-white hover:bg-white hover:text-purple-600"
+              className="border-white text-white hover:bg-white/10"
             >
-              <Link href="/demo">Watch Demo</Link>
+              <Link href="/dashboard">View Dashboard</Link>
             </Button>
           </div>
         </div>
@@ -54,54 +56,78 @@ export default function Home() {
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-foreground">
-            Powerful Features
+            Everything You Need to Succeed
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card className="text-center">
               <CardHeader>
-                <Calendar className="w-12 h-12 mx-auto mb-4 text-blue-600" />
-                <CardTitle>Smart Scheduling</CardTitle>
+                <BarChart3 className="w-12 h-12 mx-auto mb-4 text-purple-600" />
+                <CardTitle>Real-Time Analytics</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Automate your workflows with intelligent scheduling and task
-                  management.
+                  Monitor your TikTok metrics in real-time with comprehensive
+                  analytics dashboard and insights.
                 </CardDescription>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardHeader>
-                <BarChart3 className="w-12 h-12 mx-auto mb-4 text-green-600" />
-                <CardTitle>Advanced Analytics</CardTitle>
+                <TrendingUp className="w-12 h-12 mx-auto mb-4 text-pink-600" />
+                <CardTitle>Growth Tracking</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Gain deep insights with comprehensive analytics and reporting
-                  tools.
+                  Track follower growth, engagement rates, and identify trending
+                  content patterns.
+                </CardDescription>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardHeader>
+                <Video className="w-12 h-12 mx-auto mb-4 text-red-600" />
+                <CardTitle>Video Performance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Analyze individual video performance with detailed metrics and
+                  audience insights.
+                </CardDescription>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardHeader>
+                <Users className="w-12 h-12 mx-auto mb-4 text-blue-600" />
+                <CardTitle>Audience Insights</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Understand your audience demographics, interests, and engagement
+                  patterns.
+                </CardDescription>
+              </CardContent>
+            </Card>
+            <Card className="text-center">
+              <CardHeader>
+                <Eye className="w-12 h-12 mx-auto mb-4 text-green-600" />
+                <CardTitle>View Analytics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>
+                  Deep dive into view counts, watch time, and viewer retention
+                  metrics.
                 </CardDescription>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardHeader>
                 <Zap className="w-12 h-12 mx-auto mb-4 text-yellow-600" />
-                <CardTitle>Lightning Fast</CardTitle>
+                <CardTitle>Quick Reports</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Experience blazing-fast performance with our optimized
-                  infrastructure.
-                </CardDescription>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardHeader>
-                <Users className="w-12 h-12 mx-auto mb-4 text-purple-600" />
-                <CardTitle>Team Collaboration</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Collaborate seamlessly with your team in real-time
-                  environments.
+                  Generate instant reports and export data for further analysis
+                  and presentations.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -115,23 +141,23 @@ export default function Home() {
           <Card className="p-8 md:p-12">
             <CardContent>
               <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">
-                Ready to Transform Your Workflow?
+                Ready to Boost Your TikTok Presence?
               </h2>
               <p className="text-xl mb-8 text-muted-foreground max-w-2xl mx-auto">
-                Join thousands of developers who are already building faster and
-                smarter with CodeCraft. Start your free trial today and
-                experience the difference.
+                Join thousands of creators who are already using Kodash to track
+                their performance and grow their TikTok audience. Start analyzing
+                your content today.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild size="lg">
-                  <Link href="/signup">Start Free Trial</Link>
+                  <Link href="/login">Start Free Trial</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <Link href="/contact">Contact Sales</Link>
+                  <Link href="/dashboard">View Demo</Link>
                 </Button>
               </div>
               <p className="text-sm text-muted-foreground mt-6">
-                No credit card required • 14-day free trial • Cancel anytime
+                No credit card required • Free forever • Connect in seconds
               </p>
             </CardContent>
           </Card>
@@ -143,9 +169,9 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">CodeCraft</h3>
+              <h3 className="text-lg font-semibold mb-4">Kodash</h3>
               <p className="text-muted-foreground">
-                Empowering developers to build the future.
+                TikTok analytics platform for creators and businesses.
               </p>
             </div>
             <div>
@@ -153,26 +179,26 @@ export default function Home() {
               <ul className="space-y-2">
                 <li>
                   <Link
-                    href="/features"
+                    href="/dashboard"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    Features
+                    Dashboard
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="/pricing"
+                    href="/dashboard/analytics"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    Pricing
+                    Analytics
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="/integrations"
+                    href="/dashboard/videos"
                     className="text-muted-foreground hover:text-foreground"
                   >
-                    Integrations
+                    Videos
                   </Link>
                 </li>
               </ul>
@@ -182,7 +208,7 @@ export default function Home() {
               <ul className="space-y-2">
                 <li>
                   <Link
-                    href="/about"
+                    href="#"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     About
@@ -190,7 +216,7 @@ export default function Home() {
                 </li>
                 <li>
                   <Link
-                    href="/blog"
+                    href="#"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Blog
@@ -198,7 +224,7 @@ export default function Home() {
                 </li>
                 <li>
                   <Link
-                    href="/careers"
+                    href="#"
                     className="text-muted-foreground hover:text-foreground"
                   >
                     Careers
@@ -207,31 +233,37 @@ export default function Home() {
               </ul>
             </div>
             <div>
-              <h4 className="text-lg font-semibold mb-4">Connect</h4>
-              <div className="flex space-x-4">
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href="#" aria-label="Twitter">
-                    <Twitter className="w-5 h-5" />
+              <h4 className="text-lg font-semibold mb-4">Support</h4>
+              <ul className="space-y-2">
+                <li>
+                  <Link
+                    href="#"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Help Center
                   </Link>
-                </Button>
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href="#" aria-label="Instagram">
-                    <Instagram className="w-5 h-5" />
+                </li>
+                <li>
+                  <Link
+                    href="#"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    API Docs
                   </Link>
-                </Button>
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href="#" aria-label="GitHub">
-                    <Github className="w-5 h-5" />
+                </li>
+                <li>
+                  <Link
+                    href="#"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    Contact
                   </Link>
-                </Button>
-              </div>
-              <p className="text-muted-foreground mt-4">
-                contact@codecraft.com
-              </p>
+                </li>
+              </ul>
             </div>
           </div>
           <div className="border-t mt-8 pt-8 text-center text-muted-foreground">
-            <p>&copy; 2024 CodeCraft. All rights reserved.</p>
+            <p>&copy; 2024 Kodash. All rights reserved.</p>
           </div>
         </div>
       </footer>
