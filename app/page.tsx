@@ -44,7 +44,7 @@ export default function Home() {
               asChild
               variant="outline"
               size="lg"
-              className="border-white text-white hover:bg-white/10"
+              className="border-2 border-white text-white bg-white/10 hover:bg-white/20 backdrop-blur-sm"
             >
               <Link href="/dashboard">View Dashboard</Link>
             </Button>
