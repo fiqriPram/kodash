@@ -74,6 +74,122 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Pricing Preview */}
+      <section className="py-16 px-4 bg-card/30">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-2xl font-bold mb-4">Everything you need</h2>
+            <p className="text-muted-foreground">Built for modern development workflows</p>
+          </div>
+          
+          <div className="text-center mb-12">
+            <Link 
+              href="/pricing" 
+              className="inline-flex items-center text-primary hover:text-primary/80 transition-colors"
+            >
+              View detailed pricing
+              <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {/* Free Plan */}
+            <div className="text-center p-6 rounded-xl bg-card border">
+              <div className="text-3xl font-bold mb-2">Free</div>
+              <div className="text-2xl font-bold text-muted-foreground mb-4">$0<span className="text-lg font-normal">/month</span></div>
+              <ul className="space-y-2 text-sm text-left">
+                <li className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  </div>
+                  50 emails per month
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                  </div>
+                  Basic analytics
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-purple-100 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
+                  </div>
+                  Email tracking
+                </li>
+              </ul>
+              <Button asChild variant="outline" className="mt-4">
+                <Link href="/signup">Get Started</Link>
+              </Button>
+            </div>
+
+            {/* Pro Plan */}
+            <div className="text-center p-6 rounded-xl bg-card border-2 border-primary/20 ring-primary/10">
+              <div className="text-3xl font-bold mb-2 relative">
+                Pro
+                <span className="absolute -top-3 -right-3 bg-primary text-primary-foreground text-xs font-bold px-3 py-1 rounded-full">
+                  POPULAR
+                </span>
+              </div>
+              <div className="text-2xl font-bold text-muted-foreground mb-4">$29<span className="text-lg font-normal">/month</span></div>
+              <ul className="space-y-2 text-sm text-left">
+                <li className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  </div>
+                  2,000 emails per month
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                  </div>
+                  Advanced analytics
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-purple-100 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
+                  </div>
+                  Priority support
+                </li>
+              </ul>
+              <Button asChild className="mt-4">
+                <Link href="/signup">Start Free Trial</Link>
+              </Button>
+            </div>
+
+            {/* Business Plan */}
+            <div className="text-center p-6 rounded-xl bg-card border">
+              <div className="text-3xl font-bold mb-2">Business</div>
+              <div className="text-2xl font-bold text-muted-foreground mb-4">$99<span className="text-lg font-normal">/month</span></div>
+              <ul className="space-y-2 text-sm text-left">
+                <li className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-green-100 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-green-600 rounded-full"></div>
+                  </div>
+                  Unlimited emails
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                  </div>
+                  Dedicated support
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full bg-purple-100 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-purple-600 rounded-full"></div>
+                  </div>
+                  SLA guarantee
+                </li>
+              </ul>
+              <Button asChild variant="outline" className="mt-4">
+                <Link href="/signup">Start Free Trial</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Grid */}
       <section className="py-24 px-4 bg-muted/30">
         <div className="max-w-6xl mx-auto">
