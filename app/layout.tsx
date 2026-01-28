@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Navbar } from "@/components/navbar-auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -9,8 +10,8 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Kodash - TikTok Analytics Dashboard",
-  description: "Track your TikTok performance with powerful insights and analytics",
+  title: "MailBoard - Email Sending & Analytics Dashboard",
+  description: "Send transactional emails and track delivery with powerful analytics",
 };
 
 export default function RootLayout({

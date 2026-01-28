@@ -1,238 +1,267 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Users,
-  Eye,
-  Heart,
-  TrendingUp,
-  Video,
-  MessageCircle,
-  Share2,
-  ArrowUp,
-  ArrowDown,
-} from "lucide-react";
+"use client"
+
+import { useState, useEffect, useCallback } from 'react'
+import { createClient } from '@/lib/supabase'
+import { useAuth } from '@/hooks/use-auth'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Send, Mail, CheckCircle, XCircle, Eye, LogOut } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+
+interface EmailLog {
+  id: string
+  to_email: string
+  subject: string
+  status: string
+  created_at: string
+  opened_at: string | null
+}
 
 export default function DashboardPage() {
+  const { user, loading: authLoading, signOut } = useAuth()
+  const [emails, setEmails] = useState<EmailLog[]>([])
+  const [loading, setLoading] = useState(true)
+  const [sendLoading, setSendLoading] = useState(false)
+  const router = useRouter()
+  const supabase = createClient()
+
+  const loadEmails = useCallback(async (userId: string) => {
+    const { data, error } = await supabase
+      .from('email_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error loading emails:', error)
+    } else {
+      setEmails(data || [])
+    }
+  }, [supabase])
+
+  useEffect(() => {
+    if (user) {
+      loadEmails(user.id)
+    } else if (!authLoading) {
+      router.push('/login')
+    }
+  }, [user, authLoading, loadEmails, router])
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      setLoading(false)
+    }
+  }, [authLoading, user])
+
+  async function handleSendEmail(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setSendLoading(true)
+
+    const form = e.currentTarget
+    const to = form.to.value
+    const subject = form.subject.value
+    const message = form.message.value
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ to, subject, message }),
+      })
+
+      if (response.ok) {
+        form.reset()
+        if (user) {
+          await loadEmails(user.id)
+        }
+        alert('Email sent successfully!')
+      } else {
+        alert('Failed to send email')
+      }
+    } catch (error) {
+      console.error('Send email error:', error)
+      alert('Failed to send email')
+    } finally {
+      setSendLoading(false)
+    }
+  }
+
+  const stats = {
+    total: emails.length,
+    sent: emails.filter(e => e.status === 'sent').length,
+    failed: emails.filter(e => e.status === 'failed').length,
+    opened: emails.filter(e => e.opened_at).length,
+  }
+
+  if (authLoading || loading) {
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+  }
+
+  if (!user) {
+    return <div className="flex items-center justify-center min-h-screen">Redirecting...</div>
+  }
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Overview</h2>
-        <p className="text-muted-foreground">
-          Your TikTok analytics at a glance
-        </p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8 flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold">MailBoard Dashboard</h1>
+              <p className="text-muted-foreground">Send emails and track their performance</p>
+            </div>
+            <Button variant="outline" onClick={signOut}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Followers
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">45.2K</div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-              <ArrowUp className="h-3 w-3 text-green-500" />
-              <span className="text-green-500">12.5%</span> from last month
-            </p>
-          </CardContent>
-        </Card>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Emails</CardTitle>
+                <Mail className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.total}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Sent</CardTitle>
+                <CheckCircle className="h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">{stats.sent}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Failed</CardTitle>
+                <XCircle className="h-4 w-4 text-red-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Opened</CardTitle>
+                <Eye className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">{stats.opened}</div>
+              </CardContent>
+            </Card>
+          </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2.4M</div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-              <ArrowUp className="h-3 w-3 text-green-500" />
-              <span className="text-green-500">8.1%</span> from last month
-            </p>
-          </CardContent>
-        </Card>
+          <Tabs defaultValue="send" className="space-y-6">
+            <TabsList>
+              <TabsTrigger value="send">Send Email</TabsTrigger>
+              <TabsTrigger value="logs">Email Logs</TabsTrigger>
+            </TabsList>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Engagement Rate
-            </CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">6.8%</div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-              <ArrowDown className="h-3 w-3 text-red-500" />
-              <span className="text-red-500">2.3%</span> from last month
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Videos</CardTitle>
-            <Video className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">156</div>
-            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-              <ArrowUp className="h-3 w-3 text-green-500" />
-              <span className="text-green-500">4</span> new this month
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Tabs Section */}
-      <Tabs defaultValue="recent" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="recent">Recent Videos</TabsTrigger>
-          <TabsTrigger value="top">Top Performing</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="recent" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Videos Performance</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                {
-                  title: "Summer vibes 🌊",
-                  views: "245K",
-                  likes: "18.2K",
-                  comments: "892",
-                  shares: "1.2K",
-                  trend: "up",
-                },
-                {
-                  title: "Behind the scenes 🎬",
-                  views: "189K",
-                  likes: "12.5K",
-                  comments: "654",
-                  shares: "890",
-                  trend: "up",
-                },
-                {
-                  title: "Quick tutorial ✨",
-                  views: "156K",
-                  likes: "9.8K",
-                  comments: "432",
-                  shares: "567",
-                  trend: "down",
-                },
-              ].map((video, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg" />
+            <TabsContent value="send">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Send New Email</CardTitle>
+                  <CardDescription>
+                    Send a transactional email to your recipients
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSendEmail} className="space-y-4">
                     <div>
-                      <h4 className="font-semibold">{video.title}</h4>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Eye className="h-3 w-3" />
-                          {video.views}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Heart className="h-3 w-3" />
-                          {video.likes}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <MessageCircle className="h-3 w-3" />
-                          {video.comments}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Share2 className="h-3 w-3" />
-                          {video.shares}
-                        </span>
-                      </div>
+                      <Input
+                        name="to"
+                        type="email"
+                        placeholder="recipient@example.com"
+                        required
+                      />
                     </div>
-                  </div>
-                  <Badge variant={video.trend === "up" ? "default" : "secondary"}>
-                    {video.trend === "up" ? (
-                      <TrendingUp className="h-3 w-3 mr-1" />
-                    ) : (
-                      <ArrowDown className="h-3 w-3 mr-1" />
-                    )}
-                    Trending
-                  </Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="top" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Performing Videos</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                {
-                  title: "Viral dance challenge 💃",
-                  views: "1.2M",
-                  likes: "89.5K",
-                  comments: "3.2K",
-                  shares: "12.5K",
-                },
-                {
-                  title: "Life hack everyone needs 🔥",
-                  views: "890K",
-                  likes: "67.8K",
-                  comments: "2.1K",
-                  shares: "8.9K",
-                },
-                {
-                  title: "Day in my life vlog 📹",
-                  views: "654K",
-                  likes: "45.2K",
-                  comments: "1.8K",
-                  shares: "5.4K",
-                },
-              ].map((video, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-br from-pink-400 to-red-400 rounded-lg" />
                     <div>
-                      <h4 className="font-semibold">{video.title}</h4>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Eye className="h-3 w-3" />
-                          {video.views}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Heart className="h-3 w-3" />
-                          {video.likes}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <MessageCircle className="h-3 w-3" />
-                          {video.comments}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Share2 className="h-3 w-3" />
-                          {video.shares}
-                        </span>
-                      </div>
+                      <Input
+                        name="subject"
+                        placeholder="Email subject"
+                        required
+                      />
                     </div>
-                  </div>
-                  <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-0">
-                    🏆 Top
-                  </Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                    <div>
+                      <Textarea
+                        name="message"
+                        placeholder="Email message (HTML supported)"
+                        rows={6}
+                        required
+                      />
+                    </div>
+                    <Button type="submit" disabled={sendLoading}>
+                      <Send className="h-4 w-4 mr-2" />
+                      {sendLoading ? 'Sending...' : 'Send Email'}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="logs">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Email Logs</CardTitle>
+                  <CardDescription>
+                    View the status of your sent emails
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {emails.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">
+                      No emails sent yet. Send your first email to see logs here.
+                    </p>
+                  ) : (
+                    <div className="space-y-4">
+                      {emails.map((email) => (
+                        <div key={email.id} className="border rounded-lg p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="font-medium">{email.subject}</div>
+                              <div className="text-sm text-muted-foreground">
+                                To: {email.to_email}
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {new Date(email.created_at).toLocaleString()}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge
+                                variant={email.status === 'sent' ? 'default' : 'destructive'}
+                              >
+                                {email.status}
+                              </Badge>
+                              {email.opened_at && (
+                                <Badge variant="secondary">Opened</Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
