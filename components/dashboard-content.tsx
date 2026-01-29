@@ -1,9 +1,11 @@
 "use client"
 
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { LogOut, User, Mail, Calendar } from "lucide-react"
+import { LogOut, Home, BarChart3, Users, FileText, Settings, TrendingUp, Clock, Shield } from "lucide-react"
+import { getServerUser } from "@/lib/server-auth"
+import { Sidebar } from "@/components/sidebar"
 
 interface UserData {
   id: string
@@ -12,100 +14,153 @@ interface UserData {
 }
 
 export function DashboardContent({ user }: { user: UserData }) {
-  const router = useRouter()
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" })
-      router.push("/auth/login")
-      router.refresh()
+      window.location.href = "/auth/login"
     } catch (error) {
       console.error("Logout failed:", error)
     }
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Welcome back!</h1>
+    <div className="flex h-screen bg-background">
+      <Sidebar 
+        isCollapsed={isCollapsed} 
+        setIsCollapsed={setIsCollapsed}
+        user={user}
+      />
+      
+      <main className="flex-1 overflow-auto">
+        <div className="p-6">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Welcome back!</h1>
             <p className="text-muted-foreground">
-            Here&apos;s what&apos;s happening with your account today.
-          </p>
-        </div>
-        <Button onClick={handleLogout} variant="outline">
-          <LogOut className="mr-2 h-4 w-4" />
-          Logout
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Profile</CardTitle>
-            <User className="ml-auto h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Active</div>
-            <p className="text-xs text-muted-foreground">
-              Your account is active and ready to use
+              Here&apos;s what&apos;s happening with your account today.
             </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Email</CardTitle>
-            <Mail className="ml-auto h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-medium truncate">{user.email}</div>
-            <p className="text-xs text-muted-foreground">
-              Your registered email address
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Member Since</CardTitle>
-            <Calendar className="ml-auto h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-medium">
-              {new Date(user.createdAt).toLocaleDateString()}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Account creation date
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>
-            Common tasks and features for your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Button variant="outline" className="justify-start">
-              Edit Profile
-            </Button>
-            <Button variant="outline" className="justify-start">
-              Account Settings
-            </Button>
-            <Button variant="outline" className="justify-start">
-              Security
-            </Button>
-            <Button variant="outline" className="justify-start">
-              Help & Support
-            </Button>
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card>
+              <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Views</CardTitle>
+                <TrendingUp className="ml-auto h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">2,847</div>
+                <p className="text-xs text-muted-foreground">
+                  +12% from last month
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                <Users className="ml-auto h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">184</div>
+                <p className="text-xs text-muted-foreground">
+                  +8% from last week
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Documents</CardTitle>
+                <FileText className="ml-auto h-4 w-4 text-purple-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">47</div>
+                <p className="text-xs text-muted-foreground">
+                  3 new today
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Security Score</CardTitle>
+                <Shield className="ml-auto h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">98%</div>
+                <p className="text-xs text-muted-foreground">
+                  Excellent security
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Activity Feed */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+                <CardDescription>
+                  Latest actions and updates
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">User login detected</p>
+                    <p className="text-xs text-muted-foreground">2 minutes ago</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">New document created</p>
+                    <p className="text-xs text-muted-foreground">1 hour ago</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="h-2 w-2 rounded-full bg-purple-500"></div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Settings updated</p>
+                    <p className="text-xs text-muted-foreground">3 hours ago</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>
+                  Common tasks and features
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Button variant="outline" className="w-full justify-start">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Create Document
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <Users className="mr-2 h-4 w-4" />
+                  Manage Users
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  View Analytics
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Account Settings
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
