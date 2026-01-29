@@ -1,10 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { LogOut, Home, BarChart3, Users, FileText, Settings, TrendingUp, Clock, Shield } from "lucide-react"
-import { getServerUser } from "@/lib/server-auth"
+import { FileText, Users, BarChart3, Settings, TrendingUp, Shield } from "lucide-react"
 import { Sidebar } from "@/components/sidebar"
 
 interface UserData {
@@ -15,15 +14,6 @@ interface UserData {
 
 export function DashboardContent({ user }: { user: UserData }) {
   const [isCollapsed, setIsCollapsed] = useState(false)
-
-  const handleLogout = async () => {
-    try {
-      await fetch("/api/auth/logout", { method: "POST" })
-      window.location.href = "/auth/login"
-    } catch (error) {
-      console.error("Logout failed:", error)
-    }
-  }
 
   return (
     <div className="flex h-screen bg-background">
