@@ -40,7 +40,8 @@ import {
   Music,
   Archive
 } from "lucide-react"
-import { Sidebar } from "@/components/sidebar"
+import { useUser } from "@/components/user-provider"
+import { ClientOnly } from "@/components/client-only"
 
 interface UserData {
   id: string
@@ -59,8 +60,8 @@ interface Document {
   updatedAt: string
 }
 
-export function DocumentsContent({ currentUser }: { currentUser: UserData }) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+export function DocumentsContent() {
+  const { user: currentUser } = useUser()
   const [documents, setDocuments] = useState<Document[]>([])
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
@@ -165,15 +166,7 @@ export function DocumentsContent({ currentUser }: { currentUser: UserData }) {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar 
-        isCollapsed={isCollapsed} 
-        setIsCollapsed={setIsCollapsed}
-        user={currentUser}
-      />
-      
-      <main className="flex-1 overflow-auto">
-        <div className="p-6">
+    <div className="p-6">
           {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <div>
@@ -296,30 +289,39 @@ export function DocumentsContent({ currentUser }: { currentUser: UserData }) {
                   </div>
                 </div>
                 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline">
-                      <Filter className="mr-2 h-4 w-4" />
-                      {filterType === "all" ? "All Files" : 
-                       filterType === "image/" ? "Images" :
-                       filterType === "application/" ? "Documents" : "Other"}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => setFilterType("all")}>
-                      All Files
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilterType("image/")}>
-                      Images
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilterType("application/")}>
-                      Documents
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilterType("text/")}>
-                      Text Files
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <ClientOnly fallback={
+                  <Button variant="outline">
+                    <Filter className="mr-2 h-4 w-4" />
+                    {filterType === "all" ? "All Files" : 
+                     filterType === "image/" ? "Images" :
+                     filterType === "application/" ? "Documents" : "Other"}
+                  </Button>
+                }>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline">
+                        <Filter className="mr-2 h-4 w-4" />
+                        {filterType === "all" ? "All Files" : 
+                         filterType === "image/" ? "Images" :
+                         filterType === "application/" ? "Documents" : "Other"}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => setFilterType("all")}>
+                        All Files
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setFilterType("image/")}>
+                        Images
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setFilterType("application/")}>
+                        Documents
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setFilterType("text/")}>
+                        Text Files
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </ClientOnly>
               </div>
             </CardContent>
           </Card>
@@ -379,33 +381,39 @@ export function DocumentsContent({ currentUser }: { currentUser: UserData }) {
                             <TableCell>{formatFileSize(doc.fileSize)}</TableCell>
                             <TableCell>{formatDate(doc.createdAt)}</TableCell>
                             <TableCell className="text-right">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="sm">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                  <DropdownMenuItem onClick={() => handleDownload(doc)}>
-                                    <Download className="mr-2 h-4 w-4" />
-                                    Download
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem>
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    Preview
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem>
-                                    <Share2 className="mr-2 h-4 w-4" />
-                                    Share
-                                  </DropdownMenuItem>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem className="text-destructive">
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                              <ClientOnly fallback={
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              }>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm">
+                                      <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <DropdownMenuItem onClick={() => handleDownload(doc)}>
+                                      <Download className="mr-2 h-4 w-4" />
+                                      Download
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                      <Eye className="mr-2 h-4 w-4" />
+                                      Preview
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem>
+                                      <Share2 className="mr-2 h-4 w-4" />
+                                      Share
+                                    </DropdownMenuItem>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem className="text-destructive">
+                                      <Trash2 className="mr-2 h-4 w-4" />
+                                      Delete
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </ClientOnly>
                             </TableCell>
                           </TableRow>
                         )
@@ -416,8 +424,6 @@ export function DocumentsContent({ currentUser }: { currentUser: UserData }) {
               )}
             </CardContent>
           </Card>
-        </div>
-      </main>
     </div>
   )
 }

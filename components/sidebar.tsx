@@ -3,12 +3,8 @@
 import { Home, Settings, Users, BarChart3, FileText, LogOut, User, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-
-interface SidebarProps {
-  isCollapsed: boolean
-  setIsCollapsed: (collapsed: boolean) => void
-  user?: { email: string } | null
-}
+import { useSidebar } from "@/components/sidebar-provider"
+import { useUser } from "@/components/user-provider"
 
 const sidebarItems = [
   {
@@ -38,7 +34,10 @@ const sidebarItems = [
   },
 ]
 
-export function Sidebar({ isCollapsed, setIsCollapsed, user }: SidebarProps) {
+export function Sidebar() {
+  const { isCollapsed, toggleSidebar } = useSidebar()
+  const { user } = useUser()
+
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", { method: "POST" })
@@ -50,31 +49,43 @@ export function Sidebar({ isCollapsed, setIsCollapsed, user }: SidebarProps) {
 
   return (
     <aside className={cn(
-      "relative flex flex-col h-screen bg-card border-r transition-all duration-300",
-      isCollapsed ? "w-16" : "w-64"
+      "relative flex flex-col h-screen bg-card transition-all duration-300",
+      isCollapsed ? "w-16" : "w-64 border-r"
     )}>
       {/* Header with toggle button */}
       <div className="flex items-center justify-between p-4 border-b">
         <div className={cn(
           "flex items-center",
-          isCollapsed ? "justify-center" : "justify-start"
+          isCollapsed ? "justify-center" : "justify-between w-full"
         )}>
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground text-sm font-bold">K</span>
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={isCollapsed ? toggleSidebar : undefined}
+              className={cn(
+                "h-8 w-8 p-0 rounded-lg",
+                isCollapsed ? "bg-primary hover:bg-primary/90" : "bg-primary"
+              )}
+            >
+              <span className="text-primary-foreground text-sm font-bold">K</span>
+            </Button>
+            {!isCollapsed && (
+              <span className="font-bold text-lg ml-3">Kodash</span>
+            )}
           </div>
+          
           {!isCollapsed && (
-            <span className="font-bold text-lg ml-3">Kodash</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleSidebar}
+              className="h-8 w-8 p-0 hover:bg-muted"
+            >
+              <Menu className="h-4 w-4" strokeWidth={1} />
+            </Button>
           )}
         </div>
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="h-8 w-8 p-0 hover:bg-muted"
-        >
-          <Menu className="h-4 w-4" />
-        </Button>
       </div>
 
       {/* Navigation items */}

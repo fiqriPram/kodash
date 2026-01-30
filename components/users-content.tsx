@@ -34,7 +34,8 @@ import {
   Activity,
   Loader2
 } from "lucide-react"
-import { Sidebar } from "@/components/sidebar"
+import { useUser } from "@/components/user-provider"
+import { ClientOnly } from "@/components/client-only"
 
 interface UserData {
   id: string
@@ -51,8 +52,8 @@ interface User {
   role: "admin" | "user"
 }
 
-export function UsersContent({ currentUser }: { currentUser: UserData }) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+export function UsersContent() {
+  const { user: currentUser } = useUser()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
@@ -104,15 +105,7 @@ export function UsersContent({ currentUser }: { currentUser: UserData }) {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar 
-        isCollapsed={isCollapsed} 
-        setIsCollapsed={setIsCollapsed}
-        user={currentUser}
-      />
-      
-      <main className="flex-1 overflow-auto">
-        <div className="p-6">
+    <div className="p-6">
           {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <div>
@@ -210,28 +203,35 @@ export function UsersContent({ currentUser }: { currentUser: UserData }) {
                   </div>
                 </div>
                 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline">
-                      <Filter className="mr-2 h-4 w-4" />
-                      {filterStatus === "all" ? "All Status" : filterStatus}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => setFilterStatus("all")}>
-                      All Status
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilterStatus("active")}>
-                      Active
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilterStatus("inactive")}>
-                      Inactive
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilterStatus("suspended")}>
-                      Suspended
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <ClientOnly fallback={
+                  <Button variant="outline">
+                    <Filter className="mr-2 h-4 w-4" />
+                    {filterStatus === "all" ? "All Status" : filterStatus}
+                  </Button>
+                }>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline">
+                        <Filter className="mr-2 h-4 w-4" />
+                        {filterStatus === "all" ? "All Status" : filterStatus}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem onClick={() => setFilterStatus("all")}>
+                        All Status
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setFilterStatus("active")}>
+                        Active
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setFilterStatus("inactive")}>
+                        Inactive
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setFilterStatus("suspended")}>
+                        Suspended
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </ClientOnly>
               </div>
             </CardContent>
           </Card>
@@ -302,28 +302,34 @@ export function UsersContent({ currentUser }: { currentUser: UserData }) {
                             {user.lastLogin ? formatDate(user.lastLogin) : "Never"}
                           </TableCell>
                           <TableCell className="text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                <DropdownMenuItem>
-                                  <Mail className="mr-2 h-4 w-4" />
-                                  Send Email
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Shield className="mr-2 h-4 w-4" />
-                                  Change Role
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-destructive">
-                                  Suspend User
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                            <ClientOnly fallback={
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            }>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem>
+                                    <Mail className="mr-2 h-4 w-4" />
+                                    Send Email
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Shield className="mr-2 h-4 w-4" />
+                                    Change Role
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem className="text-destructive">
+                                    Suspend User
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </ClientOnly>
                           </TableCell>
                         </TableRow>
                       ))
@@ -333,8 +339,6 @@ export function UsersContent({ currentUser }: { currentUser: UserData }) {
               )}
             </CardContent>
           </Card>
-        </div>
-      </main>
     </div>
   )
 }

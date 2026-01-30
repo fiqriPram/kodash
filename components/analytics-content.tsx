@@ -21,7 +21,7 @@ import {
   Legend, 
   ResponsiveContainer 
 } from "recharts"
-import { Sidebar } from "@/components/sidebar"
+import { useUser } from "@/components/user-provider"
 
 interface UserData {
   id: string
@@ -55,20 +55,12 @@ const deviceData = [
   { name: "Tablet", value: 10, color: "#f59e0b" },
 ]
 
-export function AnalyticsContent({ user }: { user: UserData }) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+export function AnalyticsContent() {
+  const { user } = useUser()
   const [timeRange, setTimeRange] = useState("7d")
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar 
-        isCollapsed={isCollapsed} 
-        setIsCollapsed={setIsCollapsed}
-        user={user}
-      />
-      
-      <main className="flex-1 overflow-auto">
-        <div className="p-6">
+    <div className="p-6">
           {/* Header */}
           <div className="mb-8 flex items-center justify-between">
             <div>
@@ -328,8 +320,6 @@ export function AnalyticsContent({ user }: { user: UserData }) {
               </Card>
             </div>
           </div>
-        </div>
-      </main>
     </div>
   )
 }

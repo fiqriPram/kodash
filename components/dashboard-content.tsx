@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { FileText, Users, BarChart3, Settings, TrendingUp, Shield, Loader2 } from "lucide-react"
-import { Sidebar } from "@/components/sidebar"
+import { useUser } from "@/components/user-provider"
 
 interface UserData {
   id: string
@@ -32,8 +32,8 @@ interface ActivityItem {
   color: string
 }
 
-export function DashboardContent({ user }: { user: UserData }) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+export function DashboardContent() {
+  const { user } = useUser()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -71,15 +71,7 @@ export function DashboardContent({ user }: { user: UserData }) {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar 
-        isCollapsed={isCollapsed} 
-        setIsCollapsed={setIsCollapsed}
-        user={user}
-      />
-      
-      <main className="flex-1 overflow-auto">
-        <div className="p-6">
+    <div className="p-6">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Welcome back!</h1>
@@ -218,8 +210,6 @@ export function DashboardContent({ user }: { user: UserData }) {
               </CardContent>
             </Card>
           </div>
-        </div>
-      </main>
     </div>
   )
 }

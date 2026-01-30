@@ -31,7 +31,7 @@ import {
   Moon,
   Sun
 } from "lucide-react"
-import { Sidebar } from "@/components/sidebar"
+import { useUser } from "@/components/user-provider"
 
 interface UserData {
   id: string
@@ -39,8 +39,8 @@ interface UserData {
   createdAt: string
 }
 
-export function SettingsContent({ currentUser }: { currentUser: UserData }) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
+export function SettingsContent() {
+  const { user: currentUser } = useUser()
   const [loading, setLoading] = useState(false)
   const [saveLoading, setSaveLoading] = useState(false)
   const { setTheme: setAppTheme } = useTheme()
@@ -268,15 +268,7 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      <Sidebar 
-        isCollapsed={isCollapsed} 
-        setIsCollapsed={setIsCollapsed}
-        user={currentUser}
-      />
-      
-      <main className="flex-1 overflow-auto">
-        <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Settings</h1>
@@ -656,8 +648,6 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
               </Card>
             </TabsContent>
           </Tabs>
-        </div>
-      </main>
     </div>
   )
 }
