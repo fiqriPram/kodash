@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import toast from "react-hot-toast"
+import { useTheme } from "next-themes"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -41,10 +43,13 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [saveLoading, setSaveLoading] = useState(false)
+  const { setTheme: setAppTheme } = useTheme()
 
   // Profile settings
   const [displayName, setDisplayName] = useState(currentUser.email.split('@')[0])
   const [email, setEmail] = useState(currentUser.email)
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
   // Security settings
   const [currentPassword, setCurrentPassword] = useState("")
@@ -59,13 +64,18 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
   const [securityAlerts, setSecurityAlerts] = useState(true)
 
   // Appearance settings
-  const [theme, setTheme] = useState("system")
+  const [theme, setThemeState] = useState("system")
   const [language, setLanguage] = useState("en")
 
   useEffect(() => {
     // Load user settings from API
     fetchUserSettings()
   }, [])
+
+  // Log theme changes for debugging
+  useEffect(() => {
+    console.log("Current theme state:", theme)
+  }, [theme])
 
   const fetchUserSettings = async () => {
     try {
@@ -74,11 +84,13 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
         const data = await response.json()
         // Set the form fields with actual data
         if (data.displayName) setDisplayName(data.displayName)
+        if (data.email) setEmail(data.email)
+        if (data.avatarUrl) setAvatarUrl(data.avatarUrl)
         if (data.emailNotifications !== undefined) setEmailNotifications(data.emailNotifications)
         if (data.pushNotifications !== undefined) setPushNotifications(data.pushNotifications)
         if (data.weeklyReports !== undefined) setWeeklyReports(data.weeklyReports)
         if (data.securityAlerts !== undefined) setSecurityAlerts(data.securityAlerts)
-        if (data.theme) setTheme(data.theme)
+        if (data.theme) setThemeState(data.theme)
         if (data.language) setLanguage(data.language)
         if (data.twoFactorEnabled !== undefined) setTwoFactorEnabled(data.twoFactorEnabled)
       }
@@ -90,6 +102,32 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
   const handleSaveSettings = async (section: string) => {
     setSaveLoading(true)
     try {
+      // Basic client-side validation
+      if (!displayName.trim()) {
+        toast.error("Display name is required")
+        setSaveLoading(false)
+        return
+      }
+
+      if (displayName.length > 50) {
+        toast.error("Display name must be 50 characters or less")
+        setSaveLoading(false)
+        return
+      }
+
+      if (!email.trim()) {
+        toast.error("Email is required")
+        setSaveLoading(false)
+        return
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(email)) {
+        toast.error("Please enter a valid email address")
+        setSaveLoading(false)
+        return
+      }
+
       const settingsData = {
         displayName,
         email,
@@ -102,6 +140,8 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
         twoFactorEnabled
       }
 
+      console.log("Sending settings data:", settingsData)
+
       const response = await fetch("/api/user/settings", {
         method: "POST",
         headers: {
@@ -111,21 +151,88 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
       })
 
       if (response.ok) {
-        // Show success message
-        console.log(`${section} settings saved successfully`)
+        // Apply theme change if appearance settings were saved
+        if (section === "appearance") {
+          setAppTheme(theme)
+          console.log("Theme applied:", theme)
+        }
+        toast.success(`${section} settings saved successfully!`)
       } else {
-        console.error("Failed to save settings")
+        const errorData = await response.json()
+        toast.error(errorData.error || "Failed to save settings")
       }
     } catch (error) {
       console.error("Settings save error:", error)
+      toast.error("Failed to save settings")
     } finally {
       setSaveLoading(false)
     }
   }
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      toast.error("Please select an image file")
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024) { // 2MB
+      toast.error("File size must be less than 2MB")
+      return
+    }
+
+    setUploadingAvatar(true)
+    const formData = new FormData()
+    formData.append("file", file)
+
+    try {
+      const response = await fetch("/api/user/avatar", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+      if (response.ok) {
+        setAvatarUrl(data.avatarUrl)
+        toast.success("Avatar uploaded successfully!")
+      } else {
+        toast.error(data.error || "Failed to upload avatar")
+      }
+    } catch (error) {
+      console.error("Avatar upload error:", error)
+      toast.error("Failed to upload avatar")
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
   const handlePasswordChange = async () => {
+    // Client-side validation
+    if (!currentPassword.trim()) {
+      toast.error("Current password is required")
+      return
+    }
+
+    if (!newPassword.trim()) {
+      toast.error("New password is required")
+      return
+    }
+
+    if (newPassword.length < 8) {
+      toast.error("Password must be at least 8 characters")
+      return
+    }
+
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
+      toast.error("Password must contain at least one uppercase letter, one lowercase letter, and one number")
+      return
+    }
+
     if (newPassword !== confirmPassword) {
-      console.error("Passwords do not match")
+      toast.error("Passwords do not match")
       return
     }
 
@@ -147,12 +254,14 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
         setCurrentPassword("")
         setNewPassword("")
         setConfirmPassword("")
-        console.log("Password changed successfully")
+        toast.success("Password changed successfully!")
       } else {
-        console.error("Failed to change password")
+        const errorData = await response.json()
+        toast.error(errorData.error || "Failed to change password")
       }
     } catch (error) {
       console.error("Password change error:", error)
+      toast.error("Failed to change password")
     } finally {
       setSaveLoading(false)
     }
@@ -200,15 +309,37 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
                   {/* Avatar */}
                   <div className="flex items-center space-x-4">
                     <Avatar className="h-20 w-20">
-                      <AvatarImage src="" />
+                      <AvatarImage src={avatarUrl || ""} />
                       <AvatarFallback className="text-lg">
                         {currentUser.email.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <Button variant="outline" size="sm">
-                        <Camera className="mr-2 h-4 w-4" />
-                        Change Avatar
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarUpload}
+                        className="hidden"
+                        id="avatar-upload"
+                        disabled={uploadingAvatar}
+                      />
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => document.getElementById('avatar-upload')?.click()}
+                        disabled={uploadingAvatar}
+                      >
+                        {uploadingAvatar ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Camera className="mr-2 h-4 w-4" />
+                            Change Avatar
+                          </>
+                        )}
                       </Button>
                       <p className="text-sm text-muted-foreground mt-1">
                         JPG, PNG or GIF. Max 2MB.
@@ -464,7 +595,7 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
                       <div className="grid grid-cols-3 gap-2">
                         <Button
                           variant={theme === "light" ? "default" : "outline"}
-                          onClick={() => setTheme("light")}
+                          onClick={() => setThemeState("light")}
                           className="flex items-center justify-center"
                         >
                           <Sun className="mr-2 h-4 w-4" />
@@ -472,7 +603,7 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
                         </Button>
                         <Button
                           variant={theme === "dark" ? "default" : "outline"}
-                          onClick={() => setTheme("dark")}
+                          onClick={() => setThemeState("dark")}
                           className="flex items-center justify-center"
                         >
                           <Moon className="mr-2 h-4 w-4" />
@@ -480,7 +611,7 @@ export function SettingsContent({ currentUser }: { currentUser: UserData }) {
                         </Button>
                         <Button
                           variant={theme === "system" ? "default" : "outline"}
-                          onClick={() => setTheme("system")}
+                          onClick={() => setThemeState("system")}
                           className="flex items-center justify-center"
                         >
                           <Globe className="mr-2 h-4 w-4" />

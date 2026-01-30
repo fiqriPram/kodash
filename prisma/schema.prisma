@@ -20,6 +20,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   documents Document[]
+  settings  UserSettings?
+  profile   UserProfile?
 }
 
 model Document {
@@ -34,4 +36,32 @@ model Document {
   updatedAt   DateTime @updatedAt
   
   user User @relation(fields: [uploadedBy], references: [id])
+}
+
+model UserSettings {
+  id                 String @id @default(cuid())
+  userId             String @unique
+  displayName        String?
+  emailNotifications  Boolean @default(true)
+  pushNotifications   Boolean @default(false)
+  weeklyReports       Boolean @default(true)
+  securityAlerts      Boolean @default(true)
+  theme               String @default("system")
+  language            String @default("en")
+  twoFactorEnabled    Boolean @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id])
+}
+
+model UserProfile {
+  id        String @id @default(cuid())
+  userId    String @unique
+  avatarUrl String?
+  bio       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id])
 }
