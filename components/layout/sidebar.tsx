@@ -3,8 +3,9 @@
 import { Home, Settings, Users, BarChart3, FileText, LogOut, User, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { useSidebar } from "@/components/sidebar-provider"
 import { useUser } from "@/components/user-provider"
+import { SidebarLogo } from "../sidebar/sidebar-logo"
+import { SidebarItem } from "../sidebar/sidebar-item"
 
 const sidebarItems = [
   {
@@ -34,8 +35,12 @@ const sidebarItems = [
   },
 ]
 
-export function Sidebar() {
-  const { isCollapsed, toggleSidebar } = useSidebar()
+interface SidebarProps {
+  collapsed: boolean
+  onToggle: () => void
+}
+
+export function Sidebar({ collapsed, onToggle }: SidebarProps) {
   const { user } = useUser()
 
   const handleLogout = async () => {
@@ -49,37 +54,27 @@ export function Sidebar() {
 
   return (
     <aside className={cn(
-      "relative flex flex-col h-screen bg-card transition-all duration-300",
-      isCollapsed ? "w-16" : "w-64 border-r"
+      "flex flex-col h-screen bg-card transition-all duration-300",
+      collapsed ? "w-16" : "w-64 border-r"
     )}>
       {/* Header with toggle button */}
       <div className="flex items-center justify-between p-4 border-b">
         <div className={cn(
           "flex items-center",
-          isCollapsed ? "justify-center" : "justify-between w-full"
+          collapsed ? "justify-center" : "justify-between w-full"
         )}>
           <div className="flex items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={isCollapsed ? toggleSidebar : undefined}
-              className={cn(
-                "h-8 w-8 p-0 rounded-lg",
-                isCollapsed ? "bg-primary hover:bg-primary/90" : "bg-primary"
-              )}
-            >
-              <span className="text-primary-foreground text-sm font-bold">K</span>
-            </Button>
-            {!isCollapsed && (
+            <SidebarLogo collapsed={collapsed} onToggle={onToggle} />
+            {!collapsed && (
               <span className="font-bold text-lg ml-3">Kodash</span>
             )}
           </div>
           
-          {!isCollapsed && (
+          {!collapsed && (
             <Button
               variant="ghost"
               size="sm"
-              onClick={toggleSidebar}
+              onClick={onToggle}
               className="h-8 w-8 p-0 hover:bg-muted"
             >
               <Menu className="h-4 w-4" strokeWidth={1} />
@@ -91,28 +86,19 @@ export function Sidebar() {
       {/* Navigation items */}
       <nav className="flex-1 p-4 space-y-2">
         {sidebarItems.map((item) => (
-          <Button
+          <SidebarItem
             key={item.href}
-            variant="ghost"
-            className={cn(
-              "w-full justify-start h-10 transition-colors",
-              isCollapsed ? "px-2" : "px-3"
-            )}
-            asChild
-          >
-            <a href={item.href} className="flex items-center">
-              <item.icon className="h-4 w-4 flex-shrink-0" />
-              {!isCollapsed && (
-                <span className="ml-3 whitespace-nowrap">{item.title}</span>
-              )}
-            </a>
-          </Button>
+            title={item.title}
+            icon={item.icon}
+            href={item.href}
+            collapsed={collapsed}
+          />
         ))}
       </nav>
 
       {/* User section */}
       <div className="p-4 border-t">
-        {isCollapsed ? (
+        {collapsed ? (
           <div className="space-y-2">
             <div className="flex justify-center">
               <User className="h-4 w-4 text-muted-foreground" />
